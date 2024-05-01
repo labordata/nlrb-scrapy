@@ -2,11 +2,9 @@ import csv
 import datetime
 
 import scrapy
-from scrapy import Spider
-from scrapy.selector import Selector
 
 
-class NLRBSpider(Spider):
+class NLRBSpider(scrapy.Spider):
     name = "cases"
 
     def __init__(self, cases_file=None, *args, **kwargs):
@@ -16,15 +14,11 @@ class NLRBSpider(Spider):
     def start_requests(self):
         with open(self.cases_file) as f:
             reader = csv.reader(f)
-            i = 0
             for (case_number,) in reader:
                 yield scrapy.Request(
                     url=f"https://www.nlrb.gov/case/{case_number}",
                     callback=self.parse_case,
                 )
-                i += 1
-                if i > 100:
-                    break
 
     def parse_case(self, response):
 
@@ -218,7 +212,7 @@ class NLRBSpider(Spider):
 
     def parse_docket(self, response, item):
 
-        page_snippet = Selector(text=response.json()[3]["data"])
+        page_snippet = scrapy.selector.Selector(text=response.json()[3]["data"])
 
         (docket_table,) = page_snippet.xpath("//table/tbody")
         item["docket"] = _parse_docket_table(docket_table)
