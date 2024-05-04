@@ -18,21 +18,17 @@ class NLRBSpider(scrapy.Spider):
                 yield scrapy.Request(
                     url=f"https://www.nlrb.gov/case/{case_number}",
                     callback=self.parse_case,
+                    cb_kwargs={"case_number": case_number},
                 )
 
-    def parse_case(self, response):
+    def parse_case(self, response, case_number):
 
         # Case Name
         details = {}
 
-        try:
-            name = response.xpath(
-                "//h1[@class='uswds-page-title page-title']/text()"
-            ).get()
-        except ValueError:
-            response.status_code = 404
+        name = response.xpath("//h1[@class='uswds-page-title page-title']/text()").get()
 
-        details["name"] = name.strip()
+        details["name"] = name.strip() if name else case_number
 
         # Basic Details
         basic_info, *tally_elements = response.xpath(
@@ -55,6 +51,9 @@ class NLRBSpider(scrapy.Spider):
                 details[key] = datetime.datetime.strptime(value, "%m/%d/%Y").date()
             else:
                 details[key] = value
+
+        if "Case Number" not in details:
+            details["Case Number"] = case_number
 
         # Tallies
         tallies = []
@@ -199,14 +198,16 @@ class NLRBSpider(scrapy.Spider):
         keys = result_table.xpath("./thead/tr/th/text()").getall()
 
         rows = result_table.xpath("./tbody/tr")
-        assert len(rows) == 1
-        row = rows[0]
+        assert len(rows) < 2
+        if len(rows) == 1:
+            row = rows[0]
 
-        result = {
-            key: td.xpath(".//text()").get() for key, td in zip(keys, row.xpath("./td"))
-        }
-        assert item["Case Number"] == result.pop("Case Number")
-        item.update(result)
+            result = {
+                key: td.xpath(".//text()").get()
+                for key, td in zip(keys, row.xpath("./td"))
+            }
+            assert item["Case Number"] == result.pop("Case Number")
+            item.update(result)
 
         return item
 
