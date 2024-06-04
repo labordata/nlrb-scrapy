@@ -6,6 +6,7 @@
 # useful for handling different item types with a single interface
 # from itemadapter import ItemAdapter, is_item
 from scrapy import signals
+from scrapy.http.response.html import HtmlResponse
 
 
 class NlrbSpiderMiddleware:
@@ -80,12 +81,16 @@ class NlrbDownloaderMiddleware:
         return None
 
     def process_response(self, request, response, spider):
-        # Called with the response returned from the downloader.
 
-        # Must either;
-        # - return a Response object
-        # - return a Request object
-        # - or raise IgnoreRequest
+        if "<title>Request Rejected</title>" in response.text:
+            return response.replace(status=403)
+
+        if (
+            isinstance(response, HtmlResponse)
+            and '<h1 class="uswds-page-title page-title">' not in response.text
+        ):
+            return response.replace(status=404)
+
         return response
 
     def process_exception(self, request, exception, spider):

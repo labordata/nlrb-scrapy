@@ -27,8 +27,7 @@ class NLRBSpider(scrapy.Spider):
         details = {}
 
         name = response.xpath("//h1[@class='uswds-page-title page-title']/text()").get()
-
-        details["name"] = name.strip() if name else case_number
+        details["name"] = name.strip()
 
         # Basic Details
         basic_info, *tally_elements = response.xpath(
@@ -167,6 +166,8 @@ class NLRBSpider(scrapy.Spider):
                     cb_kwargs={"item": details},
                 )
                 called_dockets = True
+        else:
+            details["docket"] = []
 
         if not called_dockets:
             yield scrapy.FormRequest(
@@ -198,16 +199,15 @@ class NLRBSpider(scrapy.Spider):
         keys = result_table.xpath("./thead/tr/th/text()").getall()
 
         rows = result_table.xpath("./tbody/tr")
-        assert len(rows) < 2
-        if len(rows) == 1:
-            row = rows[0]
+        for row in rows:
 
             result = {
                 key: td.xpath(".//text()").get()
                 for key, td in zip(keys, row.xpath("./td"))
             }
-            assert item["Case Number"] == result.pop("Case Number")
-            item.update(result)
+            if result.pop("Case Number") == item["Case Number"]:
+                item.update(result)
+                break
 
         return item
 
