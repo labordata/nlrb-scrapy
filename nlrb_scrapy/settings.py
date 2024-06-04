@@ -9,8 +9,8 @@
 
 BOT_NAME = "nlrb"
 
-SPIDER_MODULES = ["nlrb.spiders"]
-NEWSPIDER_MODULE = "nlrb.spiders"
+SPIDER_MODULES = ["nlrb_scrapy.spiders"]
+NEWSPIDER_MODULE = "nlrb_scrapy.spiders"
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 # USER_AGENT = "nlrb (+http://www.yourdomain.com)"
@@ -44,11 +44,11 @@ ROBOTSTXT_OBEY = True
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 # SPIDER_MIDDLEWARES = {
-#    "nlrb.middlewares.NlrbSpiderMiddleware": 543,
+#    "nlrb_scrapy.middlewares.NlrbSpiderMiddleware": 543,
 # }
 
 DOWNLOADER_MIDDLEWARES = {
-    "nlrb.middlewares.NlrbDownloaderMiddleware": 543,
+    "nlrb_scrapy.middlewares.NlrbDownloaderMiddleware": 543,
 }
 
 # Enable or disable extensions
@@ -60,7 +60,7 @@ DOWNLOADER_MIDDLEWARES = {
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    "nlrb.pipelines.NlrbPipeline": 300,
+    "nlrb_scrapy.pipelines.NlrbPipeline": 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
