@@ -9,7 +9,7 @@ setup(
     ],
     entry_points={
         "scrapy": [
-            "settings = nlrb.settings",
+            "settings = nlrb_scrapy.settings",
         ],
     },
 )
